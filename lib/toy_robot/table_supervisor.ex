@@ -8,7 +8,7 @@ defmodule ToyRobot.TableSupervisor do
   @impl true
   def init(:ok) do
     children = [
-      ToyRobot.Table
+      {ToyRobot.Table, name: ToyRobot.Table}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

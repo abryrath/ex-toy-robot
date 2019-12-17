@@ -2,6 +2,10 @@
 
 My solution to the Toy Robot exercise in Elixir. I did not buy/read the book at the link below, but am just using the coding exercise from the website description.
 
+## Usage
+
+To run the example, use `mix run from_file.exs inputs/1.txt`
+
 ## The Exercise
 
 From https://leanpub.com/elixir-toyrobot:

@@ -9,8 +9,20 @@ defmodule ToyRobot.Table do
   """
   @type pos :: {integer, integer}
 
+  def handle_directive(table, {directive, opts}) do
+    case directive do
+      :place -> place(table, opts)
+      :report -> report(table)
+      :move -> move(table)
+      :left -> left(table)
+      :right -> right(table)
+    end
+  end
+
   # Client functions
-  def pos(table), do: GenServer.call(table, {:pos})
+  def report(table), do: GenServer.call(table, {:report})
+
+  def place(table, opts), do: GenServer.cast(table, {:place, opts})
 
   def dir(table), do: GenServer.call(table, {:dir})
 
@@ -43,8 +55,10 @@ defmodule ToyRobot.Table do
   end
 
   @impl true
-  def handle_call({:pos}, _from, table) do
-    {:reply, Map.fetch(table, :pos), table}
+  def handle_call({:report}, _from, table) do
+    {:ok, {x, y}} = Map.fetch(table, :pos)
+    {:ok, dir} = Map.fetch(table, :dir)
+    {:reply, {x, y, dir}, table}
   end
 
   @impl true
@@ -54,6 +68,15 @@ defmodule ToyRobot.Table do
     # 2 - South
     # 3 - West
     {:reply, Map.fetch(table, :dir), table}
+  end
+
+  @impl true
+  def handle_cast({:place, %{:dir => dir, :x => x, :y => y}}, table) do
+    table = table
+    |> Map.put(:pos, {x, y})
+    |> Map.put(:dir, dir)
+
+    {:noreply, table}
   end
 
   @impl true
@@ -87,8 +110,6 @@ defmodule ToyRobot.Table do
 
     case valid_move?(dimensions, pos, dir) do
       true ->
-        IO.puts("move is valid")
-
         case dir do
           0 -> {x, y + 1}
           1 -> {x + 1, y}
@@ -97,7 +118,6 @@ defmodule ToyRobot.Table do
         end
 
       false ->
-        IO.puts("move is invalid")
         {x, y}
     end
   end
